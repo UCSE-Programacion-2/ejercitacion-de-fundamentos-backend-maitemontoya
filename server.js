@@ -5,7 +5,7 @@ const path = require('path');
 // Inicializar la aplicación de Express
 const app = express();
 
-// Middleware para parsear JSON en el body de las requests (para el POST)
+// Middleware para parsear JSON en el body de lnas requests (para el POST)
 app.use(express.json());
 
 // Servir archivos estáticos desde la carpeta 'public' (frontend)
@@ -33,6 +33,10 @@ const dataFilePath = path.join(__dirname, 'data', 'frutas.json');
  */
 app.get('/frutas', (req, res) => {
   // Tu código aquí
+  const data = fs.readFileSync(dataFilePath, 'utf-8');
+  const frutas = JSON.parse(data);
+
+  res.status(200).json(frutas);
 });
 
 /**
@@ -45,6 +49,16 @@ app.get('/frutas', (req, res) => {
  */
 app.get('/frutas/buscar', (req, res) => {
   // Tu código aquí
+   const nombre = req.query.nombre || '';
+
+  const data = fs.readFileSync(dataFilePath, 'utf-8');
+  const frutas = JSON.parse(data);
+
+  const filtradas = frutas.filter((fruta) =>
+    fruta.nombre.toLowerCase().includes(nombre.toLowerCase())
+  );
+
+  res.status(200).json(filtradas);
 });
 
 /**
@@ -58,6 +72,18 @@ app.get('/frutas/buscar', (req, res) => {
  */
 app.get('/frutas/:id', (req, res) => {
   // Tu código aquí
+   const id = Number(req.params.id);
+
+  const data = fs.readFileSync(dataFilePath, 'utf-8');
+  const frutas = JSON.parse(data);
+
+  const fruta = frutas.find((fruta) => fruta.id === id);
+
+  if (!fruta) {
+    return res.status(404).json({ error: 'Fruta no encontrada' });
+  }
+
+  res.status(200).json(fruta);
 });
 
 /**
@@ -71,6 +97,25 @@ app.get('/frutas/:id', (req, res) => {
  */
 app.post('/frutas', (req, res) => {
   // Tu código aquí
+   const data = fs.readFileSync(dataFilePath, 'utf-8');
+  const frutas = JSON.parse(data);
+
+  const nuevoId =
+    frutas.length > 0 ? Math.max(...frutas.map((fruta) => fruta.id)) + 1 : 1;
+
+  const nuevaFruta = {
+    id: nuevoId,
+    imagen: req.body.imagen,
+    nombre: req.body.nombre,
+    importe: req.body.importe,
+    stock: req.body.stock,
+  };
+
+  frutas.push(nuevaFruta);
+
+  fs.writeFileSync(dataFilePath, JSON.stringify(frutas, null, 2));
+
+  res.status(201).json(nuevaFruta);
 });
 
 // Iniciar el servidor
