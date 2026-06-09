@@ -5,7 +5,7 @@ const path = require('path');
 // Inicializar la aplicación de Express
 const app = express();
 
-// Middleware para parsear JSON en el body de las requests (para el POST)
+// Middleware para parsear JSON en el body de lnas requests (para el POST)
 app.use(express.json());
 
 // Servir archivos estáticos desde la carpeta 'public' (frontend)
